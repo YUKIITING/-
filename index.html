@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>约拍档期</title>
+<script src="https://static.cloudbase.net/cloudbase-js-sdk/2.28.6/cloudbase.full.js"></script>
 <style>
 :root{
   --bg:#FAF8F4;
@@ -17,12 +18,8 @@
   --line:#EBE6DC;
   --gold:#B08D57;
   --gold-deep:#8C6D3F;
-  --tent-bg:#F3E9D7;
-  --tent-ink:#9A7B45;
-  --conf-bg:#B08D57;
-  --conf-ink:#FFFFFF;
-  --block-bg:#E8E4DC;
-  --block-ink:#7A7367;
+  --chip-bg:#F5EDDD;
+  --chip-ink:#7A6440;
   --danger:#B4483C;
   --radius:14px;
   --safe-b:env(safe-area-inset-bottom,0px);
@@ -52,7 +49,7 @@ header{
   background:var(--card);color:var(--ink-2);font-size:16px;
   display:flex;align-items:center;justify-content:center;cursor:pointer;
 }
-.m-btn:active{background:var(--tent-bg)}
+.m-btn:active{background:var(--chip-bg)}
 .m-label{min-width:110px;text-align:center;font-size:16px;font-weight:600;cursor:pointer}
 .m-today{
   font-size:12px;color:var(--gold-deep);border:1px solid var(--gold);
@@ -64,43 +61,36 @@ main{flex:1;padding-bottom:calc(84px + var(--safe-b))}
 .view{display:none}
 .view.active{display:block}
 
-/* ---------- calendar ---------- */
-.cal{padding:12px 12px 0}
+/* ---------- calendar：竖版大格 ---------- */
+.cal{padding:12px 10px 0}
 .weekdays{display:grid;grid-template-columns:repeat(7,1fr);margin-bottom:6px}
 .weekdays span{text-align:center;font-size:11px;color:var(--ink-3);letter-spacing:2px;padding:4px 0}
-.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
 .cell{
-  aspect-ratio:1/1.08;border-radius:10px;background:var(--card);
+  aspect-ratio:1/1.75;border-radius:10px;background:var(--card);
   border:1px solid transparent;position:relative;overflow:hidden;
-  display:flex;flex-direction:column;padding:4px 3px;cursor:pointer;
+  display:flex;flex-direction:column;padding:6px 5px;cursor:pointer;
 }
-.cell.out{background:transparent;cursor:default}
+.cell.out{background:transparent;cursor:default;opacity:.45}
 .cell.today{
   border:1.5px solid var(--gold);
   background:#FDF6E9;
-  box-shadow:inset 0 0 0 1px rgba(176,141,87,.25);
 }
-.d-num{font-size:11px;color:var(--ink-2);text-align:center;line-height:1.3;flex-shrink:0}
-.cell.today .d-num{
-  color:#fff;font-weight:700;
-  background:var(--gold);border-radius:50%;
-  width:19px;height:19px;line-height:19px;
-  margin:0 auto;font-size:10.5px;
+.d-top{display:flex;align-items:center;justify-content:flex-start;flex-shrink:0;min-height:20px}
+.d-num{
+  font-size:12px;color:var(--ink-2);font-weight:600;line-height:1;
+  width:20px;height:20px;display:flex;align-items:center;justify-content:center;border-radius:50%;
 }
-.cell.out .d-num{color:var(--ink-3);opacity:.4}
-.d-items{flex:1;display:flex;flex-direction:column;gap:2px;margin-top:2px;overflow:hidden}
+.cell.today .d-num{background:var(--gold);color:#fff;font-size:11.5px}
+.d-items{flex:1;display:flex;flex-direction:column;gap:3px;margin-top:4px;overflow:hidden}
 .chip{
-  font-size:9.5px;line-height:1.5;padding:1px 4px;border-radius:4px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;
+  font-size:11.5px;line-height:1.3;padding:2px 5px;border-radius:5px;
+  background:var(--chip-bg);color:var(--chip-ink);
+  flex-shrink:0;font-weight:500;word-break:break-all;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
 }
-.chip.tent{background:var(--tent-bg);color:var(--tent-ink)}
-.chip.conf{background:var(--conf-bg);color:var(--conf-ink);font-weight:600}
-.chip.block{background:var(--block-bg);color:var(--block-ink)}
-.chip .slot-tag{opacity:.75;font-size:8.5px;margin-right:1px}
-.d-more{font-size:9px;color:var(--ink-3);text-align:center;line-height:1.2}
-
-.legend{display:flex;gap:18px;justify-content:center;padding:14px 0 6px;font-size:11px;color:var(--ink-2)}
-.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.chip .slot-tag{opacity:.65;font-size:10px;margin-right:2px}
+.d-more{font-size:10.5px;color:var(--ink-3);text-align:center;line-height:1.2;margin-top:2px}
 
 /* ---------- list ---------- */
 .list-wrap{padding:16px 16px 0}
@@ -122,20 +112,13 @@ main{flex:1;padding-bottom:calc(84px + var(--safe-b))}
 .l-date .d{font-size:20px;font-weight:700;line-height:1.1}
 .l-date .w{font-size:10px;color:var(--ink-3);margin-top:2px}
 .l-item.today .l-date .w{color:var(--gold-deep);font-weight:700}
-.l-bar{width:3px;height:34px;border-radius:2px;flex-shrink:0}
-.l-bar.tent{background:var(--tent-bg);outline:1px solid #E2D2B4}
-.l-bar.conf{background:var(--conf-bg)}
-.l-bar.block{background:var(--block-bg)}
 .l-main{flex:1;min-width:0}
 .l-name{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .l-meta{font-size:11.5px;color:var(--ink-2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.l-status{flex-shrink:0;font-size:10.5px;padding:3px 8px;border-radius:999px}
-.l-status.tent{background:var(--tent-bg);color:var(--tent-ink)}
-.l-status.conf{background:var(--conf-bg);color:var(--conf-ink)}
-.l-status.block{background:var(--block-bg);color:var(--block-ink)}
+.l-slot{flex-shrink:0;font-size:10.5px;padding:3px 9px;border-radius:999px;background:var(--chip-bg);color:var(--chip-ink)}
 .empty-tip{text-align:center;color:var(--ink-3);font-size:13px;padding:48px 0}
 
-.tools{padding:22px 16px 8px;display:flex;gap:10px;justify-content:center}
+.tools{padding:22px 16px 8px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .tool-btn{
   font-size:12px;color:var(--ink-2);background:transparent;
   border:1px solid var(--line);border-radius:999px;padding:7px 16px;cursor:pointer;
@@ -167,12 +150,11 @@ main{flex:1;padding-bottom:calc(84px + var(--safe-b))}
 }
 .bar-count{font-size:9.5px;color:var(--ink-2);line-height:1;height:10px}
 .bar-stack{width:100%;display:flex;flex-direction:column;justify-content:flex-end;border-radius:5px;overflow:hidden}
-.bar-seg-conf{background:var(--conf-bg)}
-.bar-seg-tent{background:var(--tent-bg)}
+.bar-seg{background:var(--gold)}
 .bar-empty{width:100%;height:3px;border-radius:2px;background:var(--line)}
 .bar-m{font-size:9.5px;color:var(--ink-3);line-height:1}
 .bar-col.sel .bar-m{color:var(--gold-deep);font-weight:700}
-.bar-col.sel .bar-stack{outline:1.5px solid var(--gold);outline-offset:1px}
+.bar-col.sel .bar-stack{outline:1.5px solid var(--gold-deep);outline-offset:1px}
 .bar-col.sel .bar-empty{background:var(--gold)}
 .bar-col.now .bar-m{color:var(--ink);font-weight:700}
 .m-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
@@ -189,7 +171,7 @@ main{flex:1;padding-bottom:calc(84px + var(--safe-b))}
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .top-bar{flex:1;height:8px;border-radius:4px;background:var(--bg);overflow:hidden}
-.top-bar i{display:block;height:100%;background:var(--conf-bg);border-radius:4px}
+.top-bar i{display:block;height:100%;background:var(--gold);border-radius:4px}
 .top-c{width:30px;flex-shrink:0;text-align:right;font-size:12px;color:var(--ink-2)}
 
 /* ---------- bottom nav ---------- */
@@ -235,7 +217,7 @@ nav{
   padding:14px 20px 10px;
 }
 .sheet-title{font-size:17px;font-weight:700}
-.sheet-close{background:none;border:none;font-size:15px;color:var(--ink-3);cursor:pointer;padding:6px}
+.sheet-close{background:none;border:none;font-size:15px;color:var(--gold-deep);cursor:pointer;padding:6px;font-weight:600}
 .sheet-body{overflow-y:auto;padding:0 20px 24px;-webkit-overflow-scrolling:touch}
 
 /* day sheet */
@@ -245,48 +227,46 @@ nav{
   padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer;
 }
 .day-item:active{background:#F6F2EA}
-.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.dot.tent{background:#E2D2B4;outline:1.5px solid var(--tent-bg)}
-.dot.conf{background:var(--conf-bg)}
-.dot.block{background:var(--block-bg)}
+.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;background:var(--gold)}
 .day-item .n{flex:1;font-size:15px;font-weight:600;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .day-item .s{font-size:11px;color:var(--ink-3);flex-shrink:0}
 .day-add{
   width:100%;padding:12px;border-radius:var(--radius);border:1px dashed var(--gold);
   background:transparent;color:var(--gold-deep);font-size:14px;cursor:pointer;margin-top:6px;
 }
-.day-add:active{background:var(--tent-bg)}
+.day-add:active{background:var(--chip-bg)}
 .day-empty{font-size:13px;color:var(--ink-3);text-align:center;padding:18px 0 6px}
 
 /* ---------- editor form ---------- */
+.auto-hint{
+  font-size:11px;color:var(--ink-3);letter-spacing:.5px;
+  display:flex;align-items:center;gap:5px;padding:0 20px;
+}
+.auto-hint::before{content:"";width:6px;height:6px;border-radius:50%;background:#7BA05B}
 .form-group{margin-bottom:16px}
 .f-label{font-size:12px;color:var(--ink-2);margin-bottom:7px;letter-spacing:1px;display:block}
-.f-input,.f-textarea,.f-select{
+.f-input,.f-textarea{
   width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;
   padding:11px 12px;font-size:15px;color:var(--ink);font-family:inherit;
   outline:none;appearance:none;-webkit-appearance:none;
 }
-.f-input:focus,.f-textarea:focus,.f-select:focus{border-color:var(--gold)}
+.f-input:focus,.f-textarea:focus{border-color:var(--gold)}
 .f-textarea{resize:none;line-height:1.55;min-height:64px}
 .seg{display:flex;gap:8px}
 .seg button{
   flex:1;padding:10px 0;border-radius:10px;border:1px solid var(--line);
   background:var(--card);color:var(--ink-2);font-size:14px;cursor:pointer;font-family:inherit;
 }
-.seg button.on-tent{background:var(--tent-bg);border-color:#E2D2B4;color:var(--tent-ink);font-weight:600}
-.seg button.on-conf{background:var(--conf-bg);border-color:var(--conf-bg);color:#fff;font-weight:600}
-.seg button.on-plain{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:600}
+.seg button.on{background:var(--ink);border-color:var(--ink);color:#fff;font-weight:600}
 .f-row{display:flex;gap:10px}
 .f-row .form-group{flex:1}
-.form-actions{display:flex;gap:10px;margin-top:22px}
-.btn{
-  flex:1;padding:13px 0;border-radius:12px;border:none;font-size:15px;cursor:pointer;font-family:inherit;
+.btn-close-edit{
+  width:100%;margin-top:20px;padding:13px 0;border-radius:12px;border:1px solid var(--line);
+  background:var(--card);color:var(--ink-2);font-size:15px;cursor:pointer;font-family:inherit;
 }
-.btn-save{background:var(--gold);color:#fff;font-weight:600}
-.btn-save:active{background:var(--gold-deep)}
-.btn-cancel{background:var(--card);color:var(--ink-2);border:1px solid var(--line)}
+.btn-close-edit:active{background:#F6F2EA}
 .btn-del{
-  width:100%;margin-top:14px;padding:12px 0;border-radius:12px;
+  width:100%;margin-top:12px;padding:12px 0;border-radius:12px;
   border:1px solid var(--line);background:transparent;color:var(--ink-3);
   font-size:14px;cursor:pointer;font-family:inherit;transition:all .15s;
 }
@@ -338,11 +318,6 @@ nav{
         <div class="weekdays"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
         <div class="grid" id="calGrid"></div>
       </div>
-      <div class="legend">
-        <span><i style="background:var(--tent-bg);outline:1px solid #E2D2B4"></i>暂定</span>
-        <span><i style="background:var(--conf-bg)"></i>已确定</span>
-        <span><i style="background:var(--block-bg)"></i>假期 / 占用</span>
-      </div>
     </section>
 
     <!-- 列表视图 -->
@@ -366,13 +341,13 @@ nav{
         </div>
         <div class="sum-cards">
           <div class="sum-card"><div class="s-num" id="sTotal">0</div><div class="s-lab">全年约拍</div></div>
-          <div class="sum-card"><div class="s-num" id="sConf">0</div><div class="s-lab">已确定</div></div>
           <div class="sum-card"><div class="s-num" id="sMonth">0</div><div class="s-lab" id="sMonthLab">本月</div></div>
+          <div class="sum-card"><div class="s-num" id="sActive">0</div><div class="s-lab">覆盖月份</div></div>
         </div>
         <div class="s-note" id="sNote"></div>
 
         <div class="panel">
-          <div class="panel-head">月度分布 <span>深色=已确定 · 浅色=暂定</span></div>
+          <div class="panel-head">月度分布 <span>点柱子看当月明细</span></div>
           <div class="chart" id="chart"></div>
         </div>
 
@@ -419,42 +394,29 @@ nav{
     <div class="sheet-body" id="dayBody"></div>
   </div>
 
-  <!-- 编辑 sheet -->
+  <!-- 编辑 sheet（自动保存，无保存按钮） -->
   <div class="sheet" id="editSheet">
     <div class="sheet-grip"></div>
     <div class="sheet-head">
       <div class="sheet-title" id="editTitle">新增约拍</div>
-      <button class="sheet-close" data-close="editSheet">取消</button>
+      <button class="sheet-close" data-close="editSheet">完成</button>
     </div>
+    <div class="auto-hint">改动即自动保存，无需手动点保存</div>
     <div class="sheet-body">
       <div class="form-group">
         <label class="f-label">名字</label>
-        <input class="f-input" id="fName" placeholder="例如：小左" autocomplete="off">
+        <input class="f-input" id="fName" placeholder="例如：058小左" autocomplete="off">
       </div>
-      <div class="f-row">
-        <div class="form-group">
-          <label class="f-label">日期</label>
-          <input class="f-input" id="fDate" type="date">
-        </div>
-        <div class="form-group" id="endDateGroup" style="display:none">
-          <label class="f-label">结束日期</label>
-          <input class="f-input" id="fEndDate" type="date">
-        </div>
+      <div class="form-group">
+        <label class="f-label">日期</label>
+        <input class="f-input" id="fDate" type="date">
       </div>
-      <div class="form-group" id="slotGroup">
+      <div class="form-group">
         <label class="f-label">时段</label>
         <div class="seg" id="fSlot">
           <button data-v="am">上午</button>
           <button data-v="pm">下午</button>
-          <button data-v="full" class="on-plain">全天</button>
-        </div>
-      </div>
-      <div class="form-group">
-        <label class="f-label">确定程度</label>
-        <div class="seg" id="fStatus">
-          <button data-v="tentative" class="on-tent">暂定</button>
-          <button data-v="confirmed">已确定</button>
-          <button data-v="block">假期 / 占用</button>
+          <button data-v="full" class="on">全天</button>
         </div>
       </div>
       <div class="f-row">
@@ -473,12 +435,9 @@ nav{
       </div>
       <div class="form-group">
         <label class="f-label">其他备注</label>
-        <textarea class="f-textarea" id="fNotes" placeholder="日期是否可能变动、未讨论事项…"></textarea>
+        <textarea class="f-textarea" id="fNotes" placeholder="例如：14～18 秋假 / 日期可能变动…"></textarea>
       </div>
-      <div class="form-actions">
-        <button class="btn btn-cancel" data-close="editSheet">取消</button>
-        <button class="btn btn-save" id="saveBtn">保存</button>
-      </div>
+      <button class="btn-close-edit" data-close="editSheet">完成（已自动保存）</button>
       <button class="btn-del" id="delBtn" style="display:none">删除这条记录</button>
     </div>
   </div>
@@ -492,12 +451,11 @@ nav{
 var KEY = "yuepai_bookings_v1";
 var SEED_KEY = "yuepai_seeded_v1";
 
-/* ============ 云同步配置 ============
-   把 SUPABASE_URL / SUPABASE_KEY 填上后，数据即存入云端，
+/* ============ 云同步配置（腾讯云 CloudBase，国内直连，无需 VPN） ============
+   填入 CB_ENV（CloudBase 环境 ID）后，数据存入腾讯云，
    任何设备打开都是同一份，清缓存/换手机都不丢。
    留空则为「仅本地」模式（数据只存当前浏览器）。 */
-var SUPABASE_URL = "https://jalfvngsqngckvprxbs.supabase.co";
-var SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphbGZ2bmdzcW5xZ2NrdnByeGJzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MzA3Mzc5MCwiZXhwIjoyMTA4NjQ5NzkwfQ.Rr72l2AQSdgOqT03D_PLuz71h7rCEyQ0-gUHmmzMfY0";
+var CB_ENV = "";
 
 /* ---------------- 安全存储（localStorage 不可用时回退到内存，绝不白屏） ---------------- */
 var memStore = {};
@@ -526,86 +484,81 @@ function save(){
 }
 function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
-/* ---------------- 云端读写（纯 fetch，无外部依赖） ---------------- */
-function cloudReady(){ return !!(SUPABASE_URL && SUPABASE_KEY); }
-function sbHeaders(extra){
-  var h = { "apikey": SUPABASE_KEY, "Authorization": "Bearer " + SUPABASE_KEY,
-            "Content-Type": "application/json" };
-  if(extra) for(var k in extra) h[k] = extra[k];
-  return h;
+/* ---------------- 云端读写（CloudBase 匿名登录 + 单文档存储） ---------------- */
+function cloudReady(){ return !!CB_ENV && typeof window.cloudbase !== "undefined"; }
+var cbApp = null, cbSignedIn = false;
+function initCloud(){
+  return new Promise(function(res, rej){
+    if(cbSignedIn) return res();
+    if(!cloudReady()) return rej(new Error("未配置云环境"));
+    try{
+      cbApp = cloudbase.init({ env: CB_ENV });
+      var auth = cbApp.auth({ persistence: "local" });
+      auth.signInAnonymously().then(function(){ cbSignedIn = true; res(); }).catch(rej);
+    }catch(e){ rej(e); }
+  });
 }
-function toRow(b){
-  return { id:b.id, date:b.date, end_date:b.endDate||"", name:b.name||"",
-           slot:b.slot||"full", status:b.status||"tentative",
-           clothes:b.clothes||"", shoes:b.shoes||"", props:b.props||"", notes:b.notes||"",
-           updated_at:new Date().toISOString() };
-}
-function fromRow(r){
-  return { id:r.id, date:r.date, endDate:r.end_date||"", name:r.name||"",
-           slot:r.slot||"full", status:r.status||"tentative",
-           clothes:r.clothes||"", shoes:r.shoes||"", props:r.props||"", notes:r.notes||"" };
-}
+function cbDb(){ return cbApp.database(); }
 function setSync(text, bad){
   var el = $("syncState"); if(!el) return;
   el.textContent = text;
   el.style.color = bad ? "var(--danger)" : "var(--ink-3)";
 }
+function nowHM(){ return new Date().toLocaleTimeString("zh-CN",{hour:"2-digit",minute:"2-digit"}); }
 var pushTimer = null;
 function pushCloud(){
-  if(!cloudReady()){ setSync("仅本地保存"); return; }
+  if(!cloudReady()){ setSync("仅本地保存 · " + nowHM()); return; }
   clearTimeout(pushTimer);
   pushTimer = setTimeout(doPush, 500);
 }
 function doPush(){
   setSync("同步中…");
-  var rows = state.bookings.map(toRow);
-  var ids = state.bookings.map(function(b){ return b.id; });
-  var url = SUPABASE_URL.replace(/\/$/,"") + "/rest/v1/bookings";
-  fetch(url, { method:"POST", headers: sbHeaders({ "Prefer":"resolution=merge-duplicates" }), body: JSON.stringify(rows) })
-    .then(function(r){ if(!r.ok) throw new Error("upsert "+r.status);
-      var delUrl = url + "?id=not.in.(" + ids.map(encodeURIComponent).join(",") + ")";
-      return fetch(delUrl, { method:"DELETE", headers: sbHeaders() });
-    })
-    .then(function(r){ if(!r.ok) throw new Error("del "+r.status);
-      setSync("已同步到云端 · " + new Date().toLocaleTimeString("zh-CN",{hour:"2-digit",minute:"2-digit"}));
-    })
-    .catch(function(e){ setSync("云端同步失败，已存本地", true); });
+  initCloud().then(function(){
+    return cbDb().collection("bookings").doc("main").set({
+      items: state.bookings,
+      updated_at: new Date().toISOString()
+    });
+  }).then(function(){
+    setSync("已同步到云端 · " + nowHM());
+  }).catch(function(e){
+    setSync("云端同步失败（已存本地）：" + String(e && (e.error_code||e.message||e)).slice(0,40), true);
+  });
 }
 function pullCloud(){
   if(!cloudReady()){ setSync(store.ok ? "仅本地保存" : "本地存储不可用", !store.ok); return; }
   setSync("连接云端…");
-  var url = SUPABASE_URL.replace(/\/$/,"") + "/rest/v1/bookings?select=*&order=date.asc";
-  fetch(url, { headers: sbHeaders() })
-    .then(function(r){ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); })
-    .then(function(rows){
-      if(!Array.isArray(rows)) throw new Error("bad");
-      state.bookings = rows.map(fromRow);
-      store.set(KEY, JSON.stringify(state.bookings));
+  initCloud().then(function(){
+    return cbDb().collection("bookings").doc("main").get();
+  }).then(function(r){
+    var items = (r && r.data && Array.isArray(r.data.items)) ? r.data.items : [];
+    state.bookings = items;
+    store.set(KEY, JSON.stringify(items));
+    store.set(SEED_KEY, "1");
+    renderCal(); renderList(); renderStats();
+    setSync("已连接云端 · " + items.length + " 条");
+  }).catch(function(e){
+    var msg = String(e && (e.error_code || e.error || e.message || e));
+    if(/DOCUMENT_NOT_FOUND|not exist|不存在/i.test(msg)){
+      setSync("已连接云端 · 暂无数据，可点「导入备忘录数据」", false);
       store.set(SEED_KEY, "1");
-      renderCal(); renderList(); renderStats();
-      setSync("已连接云端 · " + state.bookings.length + " 条");
-    })
-    .catch(function(e){
-      if(location.protocol === "file:"){
-        setSync("需用网址打开才能连云端（本地文件被浏览器拦截）", true);
-      }else{
-        setSync("云端连接失败：" + e.message + "，显示本地缓存", true);
-      }
-    });
+      return;
+    }
+    setSync("云端连接失败：" + msg.slice(0,40) + "，显示本地缓存", true);
+  });
 }
 
 function seedData(){
   var s = [
-    {date:"2026-11-01", name:"小左",   slot:"full", status:"tentative", clothes:"", shoes:"", props:"vlog、袜子、头饰（花环？蝴蝶结？）、玻璃瓶花", notes:""},
-    {date:"2026-11-02", name:"234 小宝", slot:"full", status:"tentative", clothes:"", shoes:"", props:"", notes:"未讨论"},
-    {date:"2026-11-03", name:"212 小希", slot:"full", status:"tentative", clothes:"", shoes:"", props:"vlog、袜子、道具", notes:"安屿、心心"},
-    {date:"2026-11-07", name:"132 安宝", slot:"full", status:"tentative", clothes:"", shoes:"", props:"", notes:"派对"},
-    {date:"2026-11-08", name:"305 菀",  slot:"full", status:"tentative", clothes:"", shoes:"", props:"", notes:"未讨论"},
-    {date:"2026-11-10", name:"304 图图", slot:"full", status:"tentative", clothes:"", shoes:"", props:"", notes:"衣服、时间待确认"},
-    {date:"2026-11-13", name:"阳光",    slot:"full", status:"tentative", clothes:"", shoes:"", props:"", notes:""},
-    {date:"2026-11-14", endDate:"2026-11-18", name:"秋假", slot:"full", status:"block", clothes:"", shoes:"", props:"", notes:"14～18 秋假"},
-    {date:"2026-11-19", name:"阳光",    slot:"full", status:"tentative", clothes:"", shoes:"", props:"", notes:""},
-    {date:"2026-11-21", name:"303 小煊", slot:"full", status:"tentative", clothes:"", shoes:"", props:"", notes:"衣服等试穿"}
+    {date:"2026-11-01", name:"小左",    slot:"full", clothes:"", shoes:"", props:"vlog、袜子、头饰（花环？蝴蝶结？）、玻璃瓶花", notes:""},
+    {date:"2026-11-02", name:"234 小宝", slot:"full", clothes:"", shoes:"", props:"", notes:"未讨论"},
+    {date:"2026-11-03", name:"212 小希", slot:"full", clothes:"", shoes:"", props:"vlog、袜子、道具", notes:"安屿、心心"},
+    {date:"2026-11-07", name:"132 安宝", slot:"full", clothes:"", shoes:"", props:"", notes:"派对"},
+    {date:"2026-11-08", name:"305 菀",  slot:"full", clothes:"", shoes:"", props:"", notes:"未讨论"},
+    {date:"2026-11-10", name:"304 图图", slot:"full", clothes:"", shoes:"", props:"", notes:"衣服、时间待确认"},
+    {date:"2026-11-13", name:"阳光",    slot:"full", clothes:"", shoes:"", props:"", notes:""},
+    {date:"2026-11-14", name:"秋假",    slot:"full", clothes:"", shoes:"", props:"", notes:"14～18 秋假"},
+    {date:"2026-11-19", name:"阳光",    slot:"full", clothes:"", shoes:"", props:"", notes:""},
+    {date:"2026-11-21", name:"303 小煊", slot:"full", clothes:"", shoes:"", props:"", notes:"衣服等试穿"}
   ];
   return s.map(function(b){ b.id = uid(); return b; });
 }
@@ -615,12 +568,11 @@ var today = new Date();
 var state = {
   bookings: load(),
   view: "cal",
-  year: today.getFullYear(), month: today.getMonth(),  // 当前日历显示的年月
-  sYear: today.getFullYear(),  // 统计视图年份
-  sMonth: today.getMonth(),    // 统计视图选中月份
+  year: today.getFullYear(), month: today.getMonth(),
+  sYear: today.getFullYear(),
+  sMonth: today.getMonth(),
   editingId: null,
-  dayDate: null,
-  form: {}
+  dayDate: null
 };
 if(!cloudReady() && !store.get(SEED_KEY) && state.bookings.length === 0){
   state.bookings = seedData();
@@ -635,32 +587,16 @@ function fmtDate(y,m,d){ return y+"-"+pad(m+1)+"-"+pad(d); }
 function parseD(str){ var p = str.split("-"); return new Date(+p[0], +p[1]-1, +p[2]); }
 var WEEK = ["周日","周一","周二","周三","周四","周五","周六"];
 function slotName(s){ return s==="am" ? "上午" : s==="pm" ? "下午" : "全天"; }
-function statusName(s){ return s==="confirmed" ? "已确定" : s==="block" ? "假期/占用" : "暂定"; }
-
-function datesOf(b){
-  // 返回该记录覆盖的所有日期字符串
-  var out = [b.date];
-  if(b.endDate && b.endDate > b.date){
-    var d1 = parseD(b.date), d2 = parseD(b.endDate);
-    for(var d = new Date(d1.getTime()+86400000); d <= d2; d.setDate(d.getDate()+1)){
-      out.push(fmtDate(d.getFullYear(), d.getMonth(), d.getDate()));
-    }
-  }
-  return out;
-}
 function onDate(dateStr){
-  return state.bookings.filter(function(b){ return datesOf(b).indexOf(dateStr) !== -1; })
-    .sort(function(a,b){
-      var ord = {confirmed:0, tentative:1, block:2};
-      return (ord[a.status]-ord[b.status]) || a.name.localeCompare(b.name,"zh");
-    });
+  return state.bookings.filter(function(b){ return b.date === dateStr; })
+    .sort(function(a,b){ return a.name.localeCompare(b.name,"zh"); });
 }
 function toast(msg){
   var t = $("toast"); t.textContent = msg; t.classList.add("show");
   clearTimeout(t._tm); t._tm = setTimeout(function(){ t.classList.remove("show"); }, 1800);
 }
 
-/* ---------------- 日历渲染 ---------------- */
+/* ---------------- 日历渲染（竖版大格） ---------------- */
 function renderCal(){
   $("mLabel").textContent = state.year + " 年 " + (state.month+1) + " 月";
   var grid = $("calGrid"); grid.innerHTML = "";
@@ -677,24 +613,27 @@ function renderCal(){
     if(d.getMonth() !== state.month) cell.classList.add("out");
     if(ds === todayStr) cell.classList.add("today");
 
-    var num = document.createElement("div");
+    var top = document.createElement("div");
+    top.className = "d-top";
+    var num = document.createElement("span");
     num.className = "d-num"; num.textContent = d.getDate();
-    cell.appendChild(num);
+    top.appendChild(num);
+    cell.appendChild(top);
 
     var items = onDate(ds);
     if(items.length){
       var box = document.createElement("div"); box.className = "d-items";
-      items.slice(0,3).forEach(function(b){
+      items.slice(0,2).forEach(function(b){
         var c = document.createElement("div");
-        c.className = "chip " + (b.status==="confirmed"?"conf":b.status==="block"?"block":"tent");
+        c.className = "chip";
         var tag = b.slot==="am" ? "早" : b.slot==="pm" ? "午" : "";
         c.innerHTML = (tag ? '<span class="slot-tag">'+tag+'</span>' : "") + esc(b.name);
         box.appendChild(c);
       });
       cell.appendChild(box);
-      if(items.length > 3){
+      if(items.length > 2){
         var more = document.createElement("div");
-        more.className = "d-more"; more.textContent = "+" + (items.length-3);
+        more.className = "d-more"; more.textContent = "+" + (items.length-2);
         cell.appendChild(more);
       }
     }
@@ -740,22 +679,17 @@ function renderList(){
       var item = document.createElement("div");
       item.className = "l-item";
       var todayStr = fmtDate(today.getFullYear(), today.getMonth(), today.getDate());
-      if(b.date === todayStr || (b.endDate && b.date <= todayStr && b.endDate >= todayStr)) item.classList.add("today");
-      var dateLabel = b.endDate && b.endDate !== b.date
-        ? (+p[1])+"/"+d.getDate()+"–"+parseD(b.endDate).getDate()
-        : (+p[1])+"/"+d.getDate();
+      if(b.date === todayStr) item.classList.add("today");
       var metaParts = [];
-      if(b.status !== "block") metaParts.push(slotName(b.slot));
       if(b.clothes) metaParts.push("衣 "+b.clothes);
       if(b.shoes) metaParts.push("鞋 "+b.shoes);
       if(b.props) metaParts.push(b.props);
       if(b.notes) metaParts.push(b.notes);
       item.innerHTML =
-        '<div class="l-date"><div class="d">'+dateLabel+'</div><div class="w">'+(item.classList.contains("today")?"今天":WEEK[d.getDay()])+'</div></div>'+
-        '<div class="l-bar '+b.status+'"></div>'+
+        '<div class="l-date"><div class="d">'+(+p[1])+"/"+d.getDate()+'</div><div class="w">'+(item.classList.contains("today")?"今天":WEEK[d.getDay()])+'</div></div>'+
         '<div class="l-main"><div class="l-name">'+esc(b.name)+'</div>'+
         (metaParts.length?'<div class="l-meta">'+esc(metaParts.join(" · "))+'</div>':'')+'</div>'+
-        '<div class="l-status '+b.status+'">'+statusName(b.status)+'</div>';
+        '<div class="l-slot">'+slotName(b.slot)+'</div>';
       item.addEventListener("click", function(){ openEdit(b.id); });
       wrap.appendChild(item);
     });
@@ -768,18 +702,14 @@ function openSheet(id){
   $(id).classList.add("show");
   document.body.style.overflow = "hidden";
 }
-function closeSheets(){
-  $("mask").classList.remove("show");
-  document.querySelectorAll(".sheet").forEach(function(s){ s.classList.remove("show"); });
-  document.body.style.overflow = "";
-  resetDelBtn();
-}
 $("mask").addEventListener("click", closeSheets);
 document.querySelectorAll("[data-close]").forEach(function(el){
   el.addEventListener("click", closeSheets);
 });
 
 /* ---------------- 某日详情 ---------------- */
+function findB(id){ return state.bookings.find(function(x){ return x.id === id; }); }
+
 function openDay(dateStr){
   state.dayDate = dateStr;
   var d = parseD(dateStr);
@@ -802,11 +732,13 @@ function openDay(dateStr){
       group.forEach(function(b){
         var el = document.createElement("div");
         el.className = "day-item";
-        var detail = [statusName(b.status)];
+        var detail = [];
         if(b.clothes) detail.push("衣 "+b.clothes);
         if(b.shoes) detail.push("鞋 "+b.shoes);
-        el.innerHTML = '<span class="dot '+b.status+'"></span><span class="n">'+esc(b.name)+'</span><span class="s">'+esc(detail.join(" · "))+'</span>';
-        el.addEventListener("click", function(){ openEdit(b.id); });
+        el.innerHTML = '<span class="dot"></span><span class="n">'+esc(b.name)+'</span><span class="s">'+esc(detail.join(" · "))+'</span>';
+        el.addEventListener("click", function(){
+          openEdit(b.id);
+        });
         body.appendChild(el);
       });
     });
@@ -814,43 +746,85 @@ function openDay(dateStr){
   var add = document.createElement("button");
   add.className = "day-add";
   add.textContent = "+ 在这一天添加";
-  add.addEventListener("click", function(){ openEdit(null, dateStr); });
+  add.addEventListener("click", function(){
+    openEdit(null, dateStr);
+  });
   body.appendChild(add);
   openSheet("daySheet");
 }
 
-/* ---------------- 编辑器 ---------------- */
-var formState = { slot:"full", status:"tentative" };
+/* ---------------- 编辑器（自动保存，无保存按钮） ----------------
+   规则：编辑已有记录 → 任何字段改动立即写回并保存；
+        新增记录 → 一旦填入内容立即建档，之后每次改动同样即时保存。 */
+var formState = { slot:"full" };
+var suppressCommit = false;
 
-function bindSeg(id, key, onClass){
-  var seg = $(id);
-  seg.querySelectorAll("button").forEach(function(btn){
-    btn.addEventListener("click", function(){
-      formState[key] = btn.dataset.v;
-      paintSeg(id, key, onClass);
-      syncFormVisibility();
+function curData(){
+  return {
+    name: $("fName").value.trim(),
+    date: $("fDate").value,
+    slot: formState.slot,
+    clothes: $("fClothes").value.trim(),
+    shoes: $("fShoes").value.trim(),
+    props: $("fProps").value.trim(),
+    notes: $("fNotes").value.trim()
+  };
+}
+function hasContent(d){
+  return !!(d.name || d.props || d.notes || d.clothes || d.shoes);
+}
+function commitEdit(silent){
+  if(suppressCommit) return;
+  var d = curData();
+  if(!d.date) return;
+  if(state.editingId){
+    var b = findB(state.editingId);
+    if(b){
+      b.name = d.name || b.name;
+      b.date = d.date; b.slot = d.slot;
+      b.clothes = d.clothes; b.shoes = d.shoes;
+      b.props = d.props; b.notes = d.notes;
+      save();
+    }
+  }else if(hasContent(d)){
+    var nb = {
+      id: uid(),
+      name: d.name || "未命名",
+      date: d.date, slot: d.slot,
+      clothes: d.clothes, shoes: d.shoes,
+      props: d.props, notes: d.notes
+    };
+    state.bookings.push(nb);
+    state.editingId = nb.id;
+    $("editTitle").textContent = "编辑 · " + nb.name;
+    $("delBtn").style.display = "";
+    save();
+    if(!silent) toast("已添加");
+  }
+}
+var saveTm = null;
+function autoCommit(){
+  clearTimeout(saveTm);
+  saveTm = setTimeout(function(){ commitEdit(true); }, 150);
+}
+["fName","fDate","fClothes","fShoes","fProps","fNotes"].forEach(function(id){
+  $(id).addEventListener("input", autoCommit);
+  $(id).addEventListener("change", autoCommit);
+});
+$("fSlot").querySelectorAll("button").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    formState.slot = btn.dataset.v;
+    $("fSlot").querySelectorAll("button").forEach(function(x){
+      x.className = x.dataset.v === formState.slot ? "on" : "";
     });
+    commitEdit(true);
   });
-}
-function paintSeg(id, key, onClassMap){
-  $(id).querySelectorAll("button").forEach(function(btn){
-    btn.className = "";
-    if(btn.dataset.v === formState[key]) btn.className = onClassMap[btn.dataset.v] || "on-plain";
-  });
-}
-bindSeg("fSlot","slot",{am:"on-plain",pm:"on-plain",full:"on-plain"});
-bindSeg("fStatus","status",{tentative:"on-tent",confirmed:"on-conf",block:"on-plain"});
-
-function syncFormVisibility(){
-  var isBlock = formState.status === "block";
-  $("endDateGroup").style.display = isBlock ? "" : "none";
-  $("slotGroup").style.display = isBlock ? "none" : "";
-}
+});
 
 function openEdit(id, presetDate){
   state.editingId = id;
   resetDelBtn();
-  var b = id ? state.bookings.find(function(x){ return x.id===id; }) : null;
+  var b = id ? findB(id) : null;
   $("editTitle").textContent = b ? "编辑 · " + b.name : "新增约拍";
   $("fName").value = b ? b.name : "";
   if(b){
@@ -858,17 +832,14 @@ function openEdit(id, presetDate){
   }else if(presetDate){
     $("fDate").value = presetDate;
   }else{
-    // 默认：当前日历月是本月则取今天，否则取该月 1 号
     var tStr = fmtDate(today.getFullYear(), today.getMonth(), today.getDate());
     $("fDate").value = (state.year===today.getFullYear() && state.month===today.getMonth())
       ? tStr : fmtDate(state.year, state.month, 1);
   }
-  $("fEndDate").value = b && b.endDate ? b.endDate : "";
   formState.slot = b ? b.slot : "full";
-  formState.status = b ? b.status : "tentative";
-  paintSeg("fSlot","slot",{am:"on-plain",pm:"on-plain",full:"on-plain"});
-  paintSeg("fStatus","status",{tentative:"on-tent",confirmed:"on-conf",block:"on-plain"});
-  syncFormVisibility();
+  $("fSlot").querySelectorAll("button").forEach(function(x){
+    x.className = x.dataset.v === formState.slot ? "on" : "";
+  });
   $("fClothes").value = b ? b.clothes||"" : "";
   $("fShoes").value = b ? b.shoes||"" : "";
   $("fProps").value = b ? b.props||"" : "";
@@ -878,43 +849,30 @@ function openEdit(id, presetDate){
   setTimeout(function(){ if(!b) $("fName").focus(); }, 300);
 }
 
-$("saveBtn").addEventListener("click", function(){
-  var name = $("fName").value.trim();
-  var date = $("fDate").value;
-  if(!name){ toast("请填写名字"); return; }
-  if(!date){ toast("请选择日期"); return; }
-  var data = {
-    name: name, date: date,
-    endDate: formState.status==="block" && $("fEndDate").value && $("fEndDate").value > date ? $("fEndDate").value : "",
-    slot: formState.status==="block" ? "full" : formState.slot,
-    status: formState.status,
-    clothes: $("fClothes").value.trim(),
-    shoes: $("fShoes").value.trim(),
-    props: $("fProps").value.trim(),
-    notes: $("fNotes").value.trim()
-  };
-  if(state.editingId){
-    var b = state.bookings.find(function(x){ return x.id===state.editingId; });
-    Object.assign(b, data);
-    toast("已保存");
-  }else{
-    data.id = uid();
-    state.bookings.push(data);
-    toast("已添加");
+/* 关闭弹层（覆盖前面的声明：统一在此兜底提交未触发 input 的改动） */
+function closeSheets(){
+  clearTimeout(saveTm);
+  var editWas = $("editSheet").classList.contains("show");
+  if(editWas){
+    commitEdit(true);
+    state.editingId = null;
+    renderCal(); renderList(); renderStats();
   }
-  save(); renderCal(); renderList(); renderStats();
-  var keepDay = $("daySheet").classList.contains("show");
-  closeSheets();
-  if(keepDay) setTimeout(function(){ openDay(data.date); }, 280);
-});
+  $("mask").classList.remove("show");
+  document.querySelectorAll(".sheet").forEach(function(s){ s.classList.remove("show"); });
+  document.body.style.overflow = "";
+  resetDelBtn();
+}
 
-/* 删除：两步确认 */
+/* 删除：两步确认，确认即删除并保存 */
 var delArmed = false, delTm = null;
 function resetDelBtn(){
   delArmed = false; clearTimeout(delTm);
   var btn = $("delBtn");
-  btn.classList.remove("armed");
-  btn.textContent = "删除这条记录";
+  if(btn){
+    btn.classList.remove("armed");
+    btn.textContent = "删除这条记录";
+  }
 }
 $("delBtn").addEventListener("click", function(){
   var btn = $("delBtn");
@@ -925,47 +883,63 @@ $("delBtn").addEventListener("click", function(){
     delTm = setTimeout(resetDelBtn, 3000);
     return;
   }
-  state.bookings = state.bookings.filter(function(x){ return x.id !== state.editingId; });
-  save(); renderCal(); renderList(); renderStats();
-  closeSheets();
-  toast("已删除");
+  /* 先结算待提交的改动，并锁定自动保存 */
+  clearTimeout(saveTm);
+  suppressCommit = true;
+  var id = state.editingId;
+  if(!id){
+    /* 兜底：editingId 丢失时按表单内容定位（同名同日期且仅一条匹配） */
+    var d = curData();
+    var hit = state.bookings.filter(function(x){ return x.date === d.date && x.name === (d.name || "未命名"); });
+    if(hit.length === 1) id = hit[0].id;
+  }
+  if(id){
+    state.bookings = state.bookings.filter(function(x){ return x.id !== id; });
+    save();
+    toast("已删除");
+  }else{
+    toast("没有找到这条记录");
+  }
+  state.editingId = null;
+  renderCal(); renderList(); renderStats();
+  /* 直接收起弹层，不走 closeSheets 的兜底提交，避免已删记录被写回 */
+  $("mask").classList.remove("show");
+  document.querySelectorAll(".sheet").forEach(function(s){ s.classList.remove("show"); });
+  document.body.style.overflow = "";
+  resetDelBtn();
+  suppressCommit = false;
 });
 
 /* ---------------- 统计视图 ---------------- */
 function normName(n){ return (n||"").trim().replace(/\s+/g," "); }
 function yearBookings(y){
-  return state.bookings.filter(function(b){ return b.status !== "block" && b.date.slice(0,4) === String(y); });
+  return state.bookings.filter(function(b){ return b.date.slice(0,4) === String(y); });
 }
 function renderStats(){
   var y = state.sYear;
   $("yLabel").textContent = y + " 年";
   var yb = yearBookings(y);
 
-  // 汇总卡
-  var confCount = yb.filter(function(b){ return b.status === "confirmed"; }).length;
-  $("sTotal").textContent = yb.length;
-  $("sConf").textContent = confCount;
   var isCurYear = (y === today.getFullYear());
+  $("sTotal").textContent = yb.length;
   var mCount = isCurYear
     ? yb.filter(function(b){ return +b.date.slice(5,7) === today.getMonth()+1; }).length
     : null;
   $("sMonth").textContent = mCount === null ? "–" : mCount;
   $("sMonthLab").textContent = isCurYear ? (today.getMonth()+1) + " 月" : "非本年";
+  var monthSet = {};
+  yb.forEach(function(b){ monthSet[b.date.slice(0,7)] = true; });
+  $("sActive").textContent = Object.keys(monthSet).length;
   $("sNote").textContent = yb.length
-    ? "其中暂定 " + (yb.length - confCount) + " 单（假期/占用不计入）"
+    ? y + " 年共 " + yb.length + " 单 · " + Object.keys(monthSet).length + " 个月有拍摄"
     : "这一年还没有约拍记录";
 
-  // 月度分布柱状图
+  /* 月度分布柱状图 */
   var chart = $("chart"); chart.innerHTML = "";
   var monthly = [];
   for(var m=1;m<=12;m++){
     var list = yb.filter(function(b){ return +b.date.slice(5,7) === m; });
-    monthly.push({
-      m: m,
-      total: list.length,
-      conf: list.filter(function(b){ return b.status === "confirmed"; }).length,
-      list: list
-    });
+    monthly.push({ m: m, total: list.length, list: list });
   }
   var max = Math.max.apply(null, monthly.map(function(x){ return x.total; }).concat([1]));
   monthly.forEach(function(x){
@@ -980,20 +954,12 @@ function renderStats(){
     if(x.total){
       var stack = document.createElement("div");
       stack.className = "bar-stack";
-      var MAXH = 88; // 柱体最大像素高
-      stack.style.height = Math.max(Math.round(x.total/max*MAXH), 6) + "px";
-      if(x.conf){
-        var segC = document.createElement("div");
-        segC.className = "bar-seg-conf";
-        segC.style.flex = x.conf;
-        stack.appendChild(segC);
-      }
-      if(x.total-x.conf){
-        var segT = document.createElement("div");
-        segT.className = "bar-seg-tent";
-        segT.style.flex = (x.total-x.conf);
-        stack.appendChild(segT);
-      }
+      stack.style.height = Math.max(Math.round(x.total/max*88), 6) + "px";
+      var seg = document.createElement("div");
+      seg.className = "bar-seg";
+      seg.style.flex = "1";
+      seg.style.height = "100%";
+      stack.appendChild(seg);
       col.appendChild(stack);
     }else{
       var be = document.createElement("div");
@@ -1011,13 +977,11 @@ function renderStats(){
     chart.appendChild(col);
   });
 
-  // 当月明细
+  /* 当月明细 */
   var sel = monthly[state.sMonth];
   $("mDetailHead").textContent = (state.sMonth+1) + " 月明细";
   var chips = $("mChips"); chips.innerHTML = "";
   var c1 = document.createElement("span"); c1.textContent = "共 " + sel.total + " 单"; chips.appendChild(c1);
-  var c2 = document.createElement("span"); c2.textContent = "已确定 " + sel.conf; chips.appendChild(c2);
-  var c3 = document.createElement("span"); c3.textContent = "暂定 " + (sel.total - sel.conf); chips.appendChild(c3);
   var am = sel.list.filter(function(b){ return b.slot==="am"; }).length;
   var pm = sel.list.filter(function(b){ return b.slot==="pm"; }).length;
   var fu = sel.list.filter(function(b){ return b.slot==="full"; }).length;
@@ -1031,13 +995,13 @@ function renderStats(){
       var d = parseD(b.date);
       var el = document.createElement("div");
       el.className = "day-item";
-      el.innerHTML = '<span class="dot '+b.status+'"></span><span class="n">'+esc(b.name)+'</span><span class="s">'+(d.getMonth()+1)+'/'+d.getDate()+' '+WEEK[d.getDay()]+'</span>';
+      el.innerHTML = '<span class="dot"></span><span class="n">'+esc(b.name)+'</span><span class="s">'+(d.getMonth()+1)+'/'+d.getDate()+' '+WEEK[d.getDay()]+'</span>';
       el.addEventListener("click", function(){ openEdit(b.id); });
       mList.appendChild(el);
     });
   }
 
-  // 常拍客户（全年）
+  /* 常拍客户（全年） */
   var counts = {};
   yb.forEach(function(b){
     var k = normName(b.name) || "未命名";
@@ -1079,7 +1043,6 @@ function switchView(v){
   $("navStats").classList.toggle("on", v==="stats");
   if(v==="list") renderList();
   if(v==="stats"){
-    // 进入统计时默认对齐当前日历年月
     state.sYear = today.getFullYear();
     state.sMonth = today.getMonth();
     renderStats();
